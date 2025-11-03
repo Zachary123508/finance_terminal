@@ -12,6 +12,9 @@
 
 ### Removed
 - None.
+## [v1.1.1] - 2025-11-03
+### Fixed
+- Cleaned up comparison metrics output: convert return and volatility values to standard Python floats and round to two decimals, removing np.float64 annotations and improving readability.
 # Changelog  
   
 All notable changes to this project will be documented in this file.  
