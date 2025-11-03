@@ -1,3 +1,13 @@
+## [v1.1.2] - 2025-11-03
+### Added
+- Advanced metrics for stocks including 1-Year Return, Annualized Volatility, Sharpe Ratio, Sortino Ratio, and Max Drawdown.
+- Advanced metrics for ETFs including the same risk metrics and additional details such as Assets Under Management (AUM) and average volume.
+### Changed
+- Updated stocks and ETFs modules to compute and display risk-adjusted metrics.
+### Fixed
+- None.
+### Removed
+- None.
 ## [v1.1.0] - 2025-11-03
 ### Added
 - Compare module for multi-asset comparison across stocks, ETFs, and commodities with summary, chart, and metrics actions.
