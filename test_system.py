@@ -7,6 +7,8 @@ TESTS = [
     ["python3", "main.py", "stocks", "AAPL", "summary"],
     ["python3", "main.py", "stocks", "MSFT", "chart"],
     ["python3", "main.py", "commodities", "gold", "summary"],
+    ["python3", "main.py", "etfs", "SPY", "summary"],
+    ["python3", "main.py", "compare", "AAPL,SPY,GLD", "summary"],
 ]
 
 def run_test(command):
