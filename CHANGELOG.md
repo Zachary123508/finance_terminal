@@ -1,3 +1,17 @@
+## [v1.1.0] - 2025-11-03
+### Added
+- Compare module for multi-asset comparison across stocks, ETFs, and commodities with summary, chart, and metrics actions.
+- Chart functionality added to the ETFs module.
+- Command-line support to compare multiple symbols via comma-separated input.
+
+### Changed
+- Updated CLI argument parser to include 'compare' module and allow comma-separated symbols for comparison.
+
+### Fixed
+- None.
+
+### Removed
+- None.
 # Changelog  
   
 All notable changes to this project will be documented in this file.  
