@@ -22,8 +22,20 @@ def show_summary(ticker):
         "Industry": info.get("industry", "N/A"),
         "Market Cap": info.get("marketCap", "N/A"),
         "P/E Ratio": info.get("trailingPE", "N/A"),
+        "Forward P/E": info.get("forwardPE", "N/A"),
+        "PEG Ratio": info.get("pegRatio", "N/A"),
+        "P/B Ratio": info.get("priceToBook", "N/A"),
+        "P/S Ratio": info.get("priceToSalesTrailing12Months", "N/A"),
+        "Dividend Yield": info.get("dividendYield", "N/A"),
+        "Payout Ratio": info.get("payoutRatio", "N/A"),
+        "EPS": info.get("trailingEps", "N/A"),
+        "Revenue Growth (YoY)": info.get("revenueGrowth", "N/A"),
+        "Return on Equity": info.get("returnOnEquity", "N/A"),
         "Return on Assets": info.get("returnOnAssets", "N/A"),
-        "Dividend Yield": info.get("dividendYield", "N/A")
+        "Profit Margin": info.get("profitMargins", "N/A"),
+        "Operating Margin": info.get("operatingMargins", "N/A"),
+        "Beta": info.get("beta", "N/A"),
+        "Short Ratio": info.get("shortRatio", "N/A")
     }
     print_table(f"{info.get('symbol', 'Unknown')} Summary", data)
     log_action(f"stocks {info.get('symbol')} summary", data)
@@ -39,28 +51,41 @@ def show_chart(ticker):
 
 
 def show_metrics(ticker):
-    hist = ticker.history(period="1y")
+    hist = ticker.history(period="5y")
     prices = hist["Close"]
-    returns = prices.pct_change().dropna()
-    total_return = (prices.iloc[-1] / prices.iloc[0] - 1) * 100
-    vol = returns.std() * np.sqrt(252) * 100
-    sharpe = (returns.mean() * 252) / (returns.std() * np.sqrt(252))
-    downside_returns = returns[returns < 0]
+    returns_daily = prices.pct_change().dropna()
+    # compute total returns for 1, 3, 5 years using tail windows if available
+    def compute_total_return(series):
+        if len(series) < 2:
+            return np.nan
+        return (series.iloc[-1] / series.iloc[0] - 1) * 100
+    one_year = prices.tail(252)
+    three_year = prices.tail(252 * 3)
+    five_year = prices
+    total_return_1 = compute_total_return(one_year)
+    total_return_3 = compute_total_return(three_year)
+    total_return_5 = compute_total_return(five_year)
+    # risk metrics
+    annualized_vol = returns_daily.std() * np.sqrt(252) * 100
+    sharpe = (returns_daily.mean() * 252) / (returns_daily.std() * np.sqrt(252))
+    downside_returns = returns_daily[returns_daily < 0]
     if len(downside_returns) > 0:
         downside_std = downside_returns.std() * np.sqrt(252)
-        sortino = (returns.mean() * 252) / downside_std if downside_std != 0 else np.nan
+        sortino = (returns_daily.mean() * 252) / downside_std if downside_std != 0 else np.nan
     else:
         sortino = np.nan
-    cumulative = (1 + returns).cumprod()
+    cumulative = (1 + returns_daily).cumprod()
     running_max = cumulative.cummax()
     drawdowns = (cumulative - running_max) / running_max
-    max_drawdown = drawdowns.min() * 100
+    max_drawdown = drawdowns.min() * 100 if len(drawdowns) > 0 else np.nan
     result = {
-        "1-Year Return (%)": round(float(total_return), 2),
-        "Annualized Volatility (%)": round(float(vol), 2),
+        "1-Year Return (%)": round(float(total_return_1), 2) if not np.isnan(total_return_1) else "N/A",
+        "3-Year Return (%)": round(float(total_return_3), 2) if not np.isnan(total_return_3) else "N/A",
+        "5-Year Return (%)": round(float(total_return_5), 2) if not np.isnan(total_return_5) else "N/A",
+        "Annualized Volatility (%)": round(float(annualized_vol), 2) if not np.isnan(annualized_vol) else "N/A",
         "Sharpe Ratio": round(float(sharpe), 2) if not np.isnan(sharpe) else "N/A",
         "Sortino Ratio": round(float(sortino), 2) if not np.isnan(sortino) else "N/A",
-        "Max Drawdown (%)": round(float(max_drawdown), 2)
+        "Max Drawdown (%)": round(float(max_drawdown), 2) if not np.isnan(max_drawdown) else "N/A"
     }
-    print_table(f"{ticker.ticker} Advanced Metrics", result)
+    print_table(f"{ticker.ticker} Performance Metrics", result)
     log_action(f"stocks {ticker.ticker} metrics", result)
